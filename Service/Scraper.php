@@ -27,6 +27,7 @@ class Scraper
         
         foreach ($entries as $entry) {
             $company_name = '';
+            $ticker_symbol = '';
             $settlement_fund = '';
             
             $h5_elements = $xpath->query(".//h5[contains(@class, 'primary_color font_w7')]", $entry);
@@ -35,7 +36,13 @@ class Scraper
                 $text = trim($h5->nodeValue);
                 
                 if (strpos($text, 'Settlement Fund') === false) {
-                    $company_name = $text;
+                    if (preg_match('/\(([^)]+)\)$/', $text, $companyAndTicker)) {
+                        $ticker_symbol = $companyAndTicker[1]; // Get text inside the last parentheses
+                        $company_name = trim(substr($text, 0, strrpos($text, "($ticker_symbol)")));
+                    } else {
+                        $company_name = $text;
+                        $ticker_symbol = "N/A";
+                    }
                 } else {
                     $settlement_fund = $text;
                 }
@@ -54,6 +61,7 @@ class Scraper
             
             $data[] = [
                 'company_name' => $company_name,
+                'ticker_symbol' => $ticker_symbol,
                 'settlement_fund' => $settlement_fund,
                 'deadline' => date('Y-m-d', strtotime($deadline)),
                 'settlement_hearing_date' => date('Y-m-d', strtotime($settlement_hearing_date)),

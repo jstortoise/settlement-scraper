@@ -54,7 +54,7 @@ if ($settlement->tableExists()) {
         <table border="1">
             <tr>
                 <th>Company Name</th>
-                <th>Ticker</th>
+                <th>Ticker Symbol</th>
                 <th>Deadline</th>
                 <th>Class Period</th>
                 <th>Settlement Fund</th>
@@ -65,7 +65,7 @@ if ($settlement->tableExists()) {
                 <?php foreach ($data as $row): ?>
                     <tr>
                         <td><?= htmlspecialchars($row['company_name']) ?></td>
-                        <td><?= htmlspecialchars($row['ticker_symbol'] ?? '') ?></td>
+                        <td><?= htmlspecialchars($row['ticker_symbol']) ?></td>
                         <td><?= htmlspecialchars($row['deadline']) ?></td>
                         <td><?= htmlspecialchars($row['class_period']) ?></td>
                         <td><?= htmlspecialchars($row['settlement_fund']) ?></td>

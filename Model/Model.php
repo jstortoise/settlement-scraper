@@ -29,7 +29,7 @@ class Model
             CREATE TABLE IF NOT EXISTS {$this->table} (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 company_name VARCHAR(255),
-                ticker_symbol VARCHAR(50),
+                ticker_symbol VARCHAR(255),
                 deadline DATETIME,
                 class_period TEXT,
                 settlement_fund VARCHAR(255),

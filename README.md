@@ -106,7 +106,7 @@ CREATE DATABASE lk_test_db;
 CREATE TABLE IF NOT EXISTS settlements (
     id INT AUTO_INCREMENT PRIMARY KEY,
     company_name VARCHAR(255),
-    ticker_symbol VARCHAR(50),
+    ticker_symbol VARCHAR(255),
     deadline DATETIME,
     class_period TEXT,
     settlement_fund VARCHAR(255),
@@ -123,4 +123,3 @@ CREATE TABLE IF NOT EXISTS settlements (
 - **Scraping Limitations**: The scraper uses `file_get_contents()` to fetch the HTML content of the target page. Make sure the target URL (`https://zlk.com/settlement`) allows scraping, and that no anti-scraping measures (e.g., CAPTCHA, IP blocking) are in place.
 - **Date Handling**: The scraper processes date fields (`Deadline` and `Hearing Date`) and formats them as `Y-m-d`.
 - **Error Handling**: Errors in scraping and database operations will be shown on the web page for debugging purposes.
-- **Field Exception**: Can't find the data to scrape the field of `Ticker Symbol` from the provided url.
