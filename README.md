@@ -6,7 +6,7 @@ This is a PHP-based web scraper for gathering settlement data from a specified U
 ## Project Structure
 
 ```
-/your-project-root
+/settlement-scraper
 |-- index.php           # Main script to handle actions (create table, scrape data, etc.)
 |-- /Model
 |   |-- Model.php       # Base model class for database interactions
