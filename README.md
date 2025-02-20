@@ -79,12 +79,16 @@ Once the project is set up and running, you can interact with it using a web int
 2. **Scrape Data**
 
    After creating the table, you can scrape settlement data by clicking the "Scrape Data" button. This will fetch data from the URL `https://zlk.com/settlement` and insert it into the database.
+   
+3. **Order Data**
 
-3. **Delete Data**
+    You can see the list of "Settlements in Deadline" from the page, which is ordered by deadline and settlement fund.
+
+4. **Delete Data**
 
    You can delete all records from the table by clicking the "Delete Data" button.
 
-4. **Drop the Table**
+5. **Drop the Table**
 
    If you want to remove the table from the database, click the "Drop Table" button. This will delete the entire table.
 
@@ -101,7 +105,7 @@ CREATE DATABASE lk_test_db;
 ```
 
 ### 2. Create Table for Settlements
-
+This query can be found in `createTable()` method in Model\Settlement.php
 ```sql
 CREATE TABLE IF NOT EXISTS settlements (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -116,6 +120,14 @@ CREATE TABLE IF NOT EXISTS settlements (
 );
 ```
 
+### 3. Get the "Settlements within Deadline" Ordered by the Deadline and Settlement Fund
+This query can be found in `getSettlementsInDeadline()` method in Model\Settlement.php
+```sql
+SELECT *
+FROM settlements
+WHERE deadline >= CURDATE()
+ORDER BY deadline DESC, settlement_fund DESC;
+```
 ---
 
 ## Notes

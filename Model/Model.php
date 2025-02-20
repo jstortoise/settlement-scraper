@@ -22,24 +22,9 @@ class Model
         return $stmt->rowCount() > 0;
     }
 
-
-    public function createTable()
+    protected function createTable()
     {
-        $sql = "
-            CREATE TABLE IF NOT EXISTS {$this->table} (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                company_name VARCHAR(255),
-                ticker_symbol VARCHAR(255),
-                deadline DATETIME,
-                class_period TEXT,
-                settlement_fund VARCHAR(255),
-                settlement_hearing_date VARCHAR(255),
-                post_url TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-        ";
 
-        $this->pdo->exec($sql);
     }
 
     public function insert(array $data)
@@ -51,13 +36,19 @@ class Model
         $stmt->execute(array_values($data));
     }
 
-    public function read(?int $id = null)
+    public function read(array $options = [])
     {
         $query = "SELECT * FROM {$this->table}";
 
-        if ($id) {
-            $query = $query ." WHERE id = {$id}";
-        } 
+        if (array_key_exists("where", $options)) {
+            foreach ($options['where'] as $field => $value) {
+                if ($field === array_key_first($options['where'])) {
+                    $query .= " WHERE {$field} {$value}";
+                } else {
+                    $query .= " AND {$field} {$value}";
+                }
+            }
+        }
 
         return $this->pdo->query($query)->fetchAll(PDO::FETCH_ASSOC);
     }

@@ -4,12 +4,12 @@ require_once(dirname(__FILE__) ."/vendor/autoload.php");
 use Model\Settlement;
 use Service\Scraper;
 
-$settlement = new Settlement();
+$settlementModel = new Settlement();
 $action = array_key_exists('action', $_POST) ? $_POST['action'] : '';
 
 if ($action === 'create_table') {
     try {
-        $settlement->createTable();
+        $settlementModel->createTable();
         echo 'Successfully created a table for settlements!';
     } catch (\Throwable $th) {
         throw $th;
@@ -18,16 +18,18 @@ if ($action === 'create_table') {
     $scraper = new Scraper('https://zlk.com/settlement');
     $data = $scraper->scrape();
     foreach ($data as $row) {
-        $settlement->insert($row);
+        $settlementModel->insert($row);
     }
 } else if ($action === 'delete_data') {
-    $settlement->delete();
+    $settlementModel->delete();
 } else if ($action === 'drop_table') {
-    $settlement->dropTable();
+    $settlementModel->dropTable();
 }
 
-if ($settlement->tableExists()) {
-    $data = $settlement->read();
+if ($settlementModel->tableExists()) {
+    $data = $settlementModel->read();
+
+    $settlementsInDeadline = $settlementModel->getSettlementsInDeadline();
 } else {
     $data = [];
 }
@@ -41,7 +43,7 @@ if ($settlement->tableExists()) {
 </head>
 <body>
     <form method="POST">
-        <?php if (!$settlement->tableExists()): ?>
+        <?php if (!$settlementModel->tableExists()): ?>
             <button type="submit" name="action" value="create_table">Create Database Table</button>
         <?php else: ?>
             <button type="submit" name="action" value="scrape_data">Scrape Data</button>
@@ -50,7 +52,8 @@ if ($settlement->tableExists()) {
         <?php endif; ?>
     </form>
 
-    <?php if ($settlement->tableExists()): ?>
+    <?php if ($settlementModel->tableExists()): ?>
+        <h3>Settlements</h3>
         <table border="1">
             <tr>
                 <th>Company Name</th>
@@ -66,11 +69,51 @@ if ($settlement->tableExists()) {
                     <tr>
                         <td><?= htmlspecialchars($row['company_name']) ?></td>
                         <td><?= htmlspecialchars($row['ticker_symbol']) ?></td>
-                        <td><?= htmlspecialchars($row['deadline']) ?></td>
-                        <td><?= htmlspecialchars($row['class_period']) ?></td>
-                        <td><?= htmlspecialchars($row['settlement_fund']) ?></td>
-                        <td><?= htmlspecialchars($row['settlement_hearing_date']) ?></td>
+                        <td>
+                            <?= htmlspecialchars(date('M d, Y', strtotime($row['deadline']))) ?>
+                        </td>
+                        <td>
+                            <?= htmlspecialchars(date('M d, Y', strtotime($row['class_period_start'])) . ' - ' . date('M d, Y' , strtotime($row['class_period_end']))) ?>
+                        </td>
+                        <td align="right"><?= htmlspecialchars('$' . number_format($row['settlement_fund'])) ?></td>
+                        <td><?= htmlspecialchars(date('M d, Y', strtotime($row['settlement_hearing_date']))) ?></td>
                         <td><a href="<?= htmlspecialchars($row['post_url']) ?>">Link</a></td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="7" style="text-align: center;">
+                        No Data
+                    </td>
+                </tr>
+            <?php endif; ?>
+        </table>
+
+        <h3>Settlements in Deadline</h3>
+        <table border="1">
+            <tr>
+                <th>Company Name</th>
+                <th>Ticker Symbol</th>
+                <th>Deadline</th>
+                <th>Class Period</th>
+                <th>Settlement Fund</th>
+                <th>Hearing Date</th>
+                <th>Post URL</th>
+            </tr>
+            <?php if (!empty($settlementsInDeadline)): ?>
+                <?php foreach ($settlementsInDeadline as $settlement): ?>
+                    <tr>
+                    <td><?= htmlspecialchars($settlement['company_name']) ?></td>
+                        <td><?= htmlspecialchars($settlement['ticker_symbol']) ?></td>
+                        <td>
+                            <?= htmlspecialchars(date('M d, Y', strtotime($settlement['deadline']))) ?>
+                        </td>
+                        <td>
+                            <?= htmlspecialchars(date('M d, Y', strtotime($settlement['class_period_start'])) . ' - ' . date('M d, Y' , strtotime($settlement['class_period_end']))) ?>
+                        </td>
+                        <td align="right"><?= htmlspecialchars('$' . number_format($settlement['settlement_fund'])) ?></td>
+                        <td><?= htmlspecialchars(date('M d, Y', strtotime($settlement['settlement_hearing_date']))) ?></td>
+                        <td><a href="<?= htmlspecialchars($settlement['post_url']) ?>">Link</a></td>
                     </tr>
                 <?php endforeach; ?>
             <?php else: ?>
@@ -83,4 +126,10 @@ if ($settlement->tableExists()) {
         </table>
     <?php endif; ?>
 </body>
+
+<style>
+    th, td {
+        padding: 5px 10px;
+    }
+</style>
 </html>

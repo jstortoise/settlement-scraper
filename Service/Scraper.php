@@ -56,8 +56,9 @@ class Scraper
             $deadline = preg_replace('/Deadline:\s*/', '', $deadline);
             $settlement_hearing_date = preg_replace('/Settlement Hearing Date:\s*/', '', $settlement_hearing_date);
             $class_period = preg_replace('/Class Period:\s*/', '', $class_period);
+            $class_period_data = explode('-', $class_period);
 
-            $settlement_fund = preg_replace('/Settlement Fund:\s*/', '', $settlement_fund);
+            $settlement_fund = (int) str_replace(['$', ','], '', preg_replace('/Settlement Fund:\s*/', '', $settlement_fund));
             
             $data[] = [
                 'company_name' => $company_name,
@@ -65,7 +66,8 @@ class Scraper
                 'settlement_fund' => $settlement_fund,
                 'deadline' => date('Y-m-d', strtotime($deadline)),
                 'settlement_hearing_date' => date('Y-m-d', strtotime($settlement_hearing_date)),
-                'class_period' => $class_period,
+                'class_period_start' => date('Y-m-d', strtotime($class_period_data[0])),
+                'class_period_end' => date('Y-m-d', strtotime($class_period_data[1])),
                 'post_url' => $post_url
             ];
         }
